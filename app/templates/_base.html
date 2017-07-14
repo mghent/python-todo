@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}ToDo{% endblock %}</title>
+
+      <!-- meta -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- styles -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    {% block header_extra %}
+    {% endblock %}
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <nav class="navbar navbar-default navbar-static-top navbar-inverse">
+      <div class="container">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a class="navbar-brand" href="/">Home</a></li>
+            <li><a href="/link">Link</a></li>
+
+            <li><a href="/help">Help</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <br>
+
+    <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <!-- <strong>Title</strong> --> {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    </div>
+
+    <div class="container">
+      <!-- child template -->
+      {% block content %}
+      {% endblock %}
+    </div>
+
+  </body>
+</html>

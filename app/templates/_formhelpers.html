@@ -1,0 +1,74 @@
+{% macro render_field(field, tooltip=None, data_placement='top', with_label=True) %}
+
+    {#
+        Renders an html form field with an optional tooltip. Tooltip is rendered on the field label.
+        If with_label=False no tooltip will be rendered, even if a tooltip is supplied.
+
+        field: field to render
+        tooltip: string to be rendered as a tooltip, defaults to None
+        data_placement: location the tooltip will be rendered (left, right, top, bottom). Defaults to Top
+        with_label: wether the form field will be renderd with a label or not. Defaults to true
+    #}
+
+    {% set with_label = kwargs.pop('with_label', True) %}
+
+    {%  if field.type != 'HiddenField'  %}
+    <div class="form-group row">
+        <div class="col-sm-3">
+            {% if with_label%}
+                <label for="{{ field.id }}" {% if tooltip %}class="control-label" data-toggle="tooltip" data-placement="{{ data_placement }}" title="{{ tooltip }}"{% endif %}>
+                    {{ field.label.text }}{% if field.flags.required %} *{% endif %}:
+                </label>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-4 controls">
+            {% set class_ = kwargs.pop('class_', '') %}
+            {% if field.flags.required %}
+                {% set class_ = class_ + ' required' %}
+            {% endif %}
+            {# Ugh - think the render_kw args could be passed along to flags. #}
+            {# it isnt, so we root around in render_kw to get it. #}
+            {% if (field.render_kw or {}).get("readonly") %}
+              {% set class_ = class_ + ' cdb_readonly' %}
+            {% endif %}
+
+            {% if field.type == 'BooleanField' %}
+                <label class="checkbox">
+                    {{ field(class_=class_, **kwargs) }}
+                    {{ field.label.text|safe }}
+                </label>
+
+            {% elif field.type == 'RadioField' %}
+                {% for value, label, _ in field.iter_choices() %}
+                    <label class="radio">
+                        <input type="radio" name="{{ field.id }}" id="{{ field.id }}" value="{{ value }}">{{ label }}
+                    </label>
+                {% endfor %}
+
+            {% elif field.type in ('SelectMultipleField', 'QuerySelectMultipleField') %}
+                {{ field(class_="selectpicker show-tick form-control", **kwargs) }}
+
+            {% else %}
+                {% if field.type in ('TextField', 'TextAreaField', 'PasswordField') %}
+                    {% set class_ = class_ + ' input-xlarge' %}
+                {% elif field.type == 'FileField' %}
+                    {% set class_ = class_ + ' input-file' %}
+                {% endif %}
+                {{ field(class_=class_, **kwargs) }}
+            {% endif %}
+
+            {% if field.errors %}
+                <BR>
+                <span class="error help-inline text-danger">{{ field.errors|join(', ') }}</span>
+            {% endif %}
+            {% if field.description %}
+                <p class="help-block">{{ field.description|safe }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+        {{ field(class_=class_, **kwargs) }}
+    {% endif %}
+
+{% endmacro %}
